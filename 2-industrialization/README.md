@@ -7,18 +7,16 @@ Run the pipeline scripts in order. Each step writes files that the next one read
 From this folder (`2-industrialization`):
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e .
+uv sync
 ```
 
 ## Run order
 
 ```bash
-python src/pipeline/2_1_data_raw_profiling_split.py
-python src/pipeline/2_2_data_raw_train_preprocessing.py
-python src/pipeline/2_3_data_preprocessed_train_feature_engineering.py
-python src/pipeline/2_4_data_raw_test_evaluation.py
+uv run python src/pipeline/2_1_data_raw_profiling_split.py
+uv run python src/pipeline/2_2_data_raw_train_preprocessing.py
+uv run python src/pipeline/2_3_data_preprocessed_train_feature_engineering.py
+uv run python src/pipeline/2_4_data_raw_test_evaluation.py
 ```
 
 | # | Script | What it does | Writes |

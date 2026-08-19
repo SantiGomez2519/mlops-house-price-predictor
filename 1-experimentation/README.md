@@ -7,10 +7,8 @@ Run the notebooks in order. Each step writes files that the next one reads.
 From this folder (`1-experimentation`):
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e .
-jupyter notebook notebooks
+uv sync
+uv run jupyter notebook notebooks
 ```
 
 Or open the `notebooks/` folder in VS Code / Cursor and select the same interpreter.
