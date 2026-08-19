@@ -4,12 +4,12 @@ Run the notebooks in order. Each step writes files that the next one reads.
 
 ## Setup
 
-From this folder (`simple-version/1-experimentation`):
+From this folder (`1-experimentation`):
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -e .
 jupyter notebook notebooks
 ```
 

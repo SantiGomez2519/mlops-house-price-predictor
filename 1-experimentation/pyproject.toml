@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "house-price-predictor-experimentation"
+version = "0.1.0"
+description = "House price prediction experimentation notebooks"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "jupyter",
+    "matplotlib",
+    "seaborn",
+]
+
+[tool.setuptools]
+packages = []

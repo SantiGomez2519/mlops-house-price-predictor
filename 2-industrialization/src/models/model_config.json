@@ -1,0 +1,53 @@
+{
+  "model_name": "random_forest",
+  "model_class": "RandomForestRegressor",
+  "params": {
+    "bootstrap": true,
+    "ccp_alpha": 0.0,
+    "criterion": "squared_error",
+    "max_depth": null,
+    "max_features": 1.0,
+    "max_leaf_nodes": null,
+    "max_samples": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 1,
+    "min_samples_split": 2,
+    "min_weight_fraction_leaf": 0.0,
+    "monotonic_cst": null,
+    "n_estimators": 100,
+    "n_jobs": null,
+    "oob_score": false,
+    "random_state": 42,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "best_params": {
+    "max_depth": null,
+    "min_samples_leaf": 1,
+    "n_estimators": 100
+  },
+  "features": [
+    "sqft",
+    "bedrooms",
+    "bathrooms",
+    "house_age",
+    "condition",
+    "location_Downtown",
+    "location_Mountain",
+    "location_Rural",
+    "location_Suburb",
+    "location_Urban",
+    "location_Waterfront"
+  ],
+  "target": "price",
+  "cv": {
+    "n_splits": 5,
+    "random_state": 42,
+    "selection_metric": "cv_mae",
+    "metrics": {
+      "cv_r2": 0.9848614147918735,
+      "cv_mae": 21864.6304029304,
+      "cv_rmse": 39381.873099123884
+    }
+  }
+}
