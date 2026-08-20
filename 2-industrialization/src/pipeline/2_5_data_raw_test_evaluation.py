@@ -1,4 +1,4 @@
-"""2.4 Test evaluation.
+"""2.5 Test evaluation.
 
 Load raw test and apply saved preprocessor, feature engineer, and model
 (transform / predict only).
