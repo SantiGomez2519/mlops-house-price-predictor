@@ -5,20 +5,26 @@ Load raw test and apply saved preprocessor, feature engineer, and model
 """
 
 import pickle
+import sys
 from pathlib import Path
 
 import pandas as pd
 from sklearn import set_config
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
+PIPELINE_DIR = Path(__file__).resolve().parent
+if str(PIPELINE_DIR) not in sys.path:
+    sys.path.insert(0, str(PIPELINE_DIR))
+
+from custom_transformers import AddHouseAge  # noqa: E402, F401
+
 set_config(transform_output="pandas")
 
 
 class DataRawTestEvaluation:
     TARGET = "price"
-    REFERENCE_YEAR = 2026
 
-    SRC_DIR = Path(__file__).resolve().parent.parent
+    SRC_DIR = PIPELINE_DIR.parent
     DATA_DIR = SRC_DIR / "data"
     MODELS_DIR = SRC_DIR / "models"
 
@@ -27,12 +33,6 @@ class DataRawTestEvaluation:
     FEATURE_ENGINEER_PATH = MODELS_DIR / "feature_engineer.pkl"
     MODEL_PATH = MODELS_DIR / "model.pkl"
     PREDICTIONS_PATH = DATA_DIR / "data_featured_test_predictions.csv"
-
-    @staticmethod
-    def add_house_age(X, reference_year=2026, source="year_built"):
-        out = X.copy()
-        out["house_age"] = reference_year - out[source]
-        return out.drop(columns=[source])
 
     @classmethod
     def run(cls) -> None:
@@ -48,9 +48,6 @@ class DataRawTestEvaluation:
             model = pickle.load(file)
 
         test_preprocessed = preprocessor.transform(test_df)
-        test_preprocessed = cls.add_house_age(
-            test_preprocessed, reference_year=cls.REFERENCE_YEAR
-        )
         test_featured = feature_engineer.transform(test_preprocessed)
 
         X_test = test_featured.drop(columns=[cls.TARGET])

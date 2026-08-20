@@ -4,12 +4,20 @@ Fit house_age + scaling/encoding on preprocessed train (experimentation 1.4).
 """
 
 import pickle
+import sys
 from pathlib import Path
 
 import pandas as pd
 from sklearn import set_config
 from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
+
+PIPELINE_DIR = Path(__file__).resolve().parent
+if str(PIPELINE_DIR) not in sys.path:
+    sys.path.insert(0, str(PIPELINE_DIR))
+
+from custom_transformers import AddHouseAge  # noqa: E402
 
 set_config(transform_output="pandas")
 
@@ -22,7 +30,7 @@ class DataPreprocessedTrainFeatureEngineering:
     FEATURE_ORDINAL = ["condition"]
     FEATURE_NOMINAL = ["location"]
 
-    SRC_DIR = Path(__file__).resolve().parent.parent
+    SRC_DIR = PIPELINE_DIR.parent
     DATA_DIR = SRC_DIR / "data"
     MODELS_DIR = SRC_DIR / "models"
 
@@ -30,34 +38,36 @@ class DataPreprocessedTrainFeatureEngineering:
     FEATURED_TRAIN_PATH = DATA_DIR / "data_featured_train.csv"
     FEATURE_ENGINEER_PATH = MODELS_DIR / "feature_engineer.pkl"
 
-    @staticmethod
-    def add_house_age(X, reference_year=2026, source="year_built"):
-        out = X.copy()
-        out["house_age"] = reference_year - out[source]
-        return out.drop(columns=[source])
-
     @classmethod
-    def build_feature_engineer(cls) -> ColumnTransformer:
-        return ColumnTransformer(
-            transformers=[
-                ("num", StandardScaler(), cls.FEATURE_NUMERIC),
+    def build_feature_engineer(cls) -> Pipeline:
+        return Pipeline(
+            [
+                ("add_house_age", AddHouseAge(reference_year=cls.REFERENCE_YEAR)),
                 (
-                    "ord",
-                    OrdinalEncoder(
-                        categories=[cls.CONDITION_ORDER],
-                        handle_unknown="use_encoded_value",
-                        unknown_value=-1,
+                    "encode",
+                    ColumnTransformer(
+                        transformers=[
+                            ("num", StandardScaler(), cls.FEATURE_NUMERIC),
+                            (
+                                "ord",
+                                OrdinalEncoder(
+                                    categories=[cls.CONDITION_ORDER],
+                                    handle_unknown="use_encoded_value",
+                                    unknown_value=-1,
+                                ),
+                                cls.FEATURE_ORDINAL,
+                            ),
+                            (
+                                "nom",
+                                OneHotEncoder(handle_unknown="ignore", sparse_output=False),
+                                cls.FEATURE_NOMINAL,
+                            ),
+                        ],
+                        remainder="passthrough",
+                        verbose_feature_names_out=False,
                     ),
-                    cls.FEATURE_ORDINAL,
                 ),
-                (
-                    "nom",
-                    OneHotEncoder(handle_unknown="ignore", sparse_output=False),
-                    cls.FEATURE_NOMINAL,
-                ),
-            ],
-            remainder="passthrough",
-            verbose_feature_names_out=False,
+            ]
         )
 
     @classmethod
@@ -68,7 +78,6 @@ class DataPreprocessedTrainFeatureEngineering:
         print(f"Rows: {train_df.shape[0]} | Columns: {train_df.shape[1]}")
         print(f"Columns: {list(train_df.columns)}")
 
-        train_df = cls.add_house_age(train_df, reference_year=cls.REFERENCE_YEAR)
         feature_engineer = cls.build_feature_engineer()
         feature_engineer.fit(train_df)
         train_featured = feature_engineer.transform(train_df)

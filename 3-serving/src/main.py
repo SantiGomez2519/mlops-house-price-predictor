@@ -2,6 +2,7 @@
 
 import os
 import pickle
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -34,13 +35,13 @@ class HealthResponse(BaseModel):
 
 class HousePriceServing:
     TARGET = "price"
-    REFERENCE_YEAR = 2026
 
     SRC_DIR = Path(__file__).resolve().parent
     SERVING_DIR = SRC_DIR.parent
     REPO_DIR = SERVING_DIR.parent
     LOCAL_MODELS_DIR = SRC_DIR / "models"
     INDUSTRIAL_MODELS_DIR = REPO_DIR / "2-industrialization" / "src" / "models"
+    PIPELINE_DIR = REPO_DIR / "2-industrialization" / "src" / "pipeline"
 
     preprocessor = None
     feature_engineer = None
@@ -56,14 +57,12 @@ class HousePriceServing:
             return cls.LOCAL_MODELS_DIR
         return cls.INDUSTRIAL_MODELS_DIR
 
-    @staticmethod
-    def add_house_age(X, reference_year=2026, source="year_built"):
-        out = X.copy()
-        out["house_age"] = reference_year - out[source]
-        return out.drop(columns=[source])
-
     @classmethod
     def load(cls) -> None:
+        if str(cls.PIPELINE_DIR) not in sys.path:
+            sys.path.insert(0, str(cls.PIPELINE_DIR))
+        from custom_transformers import AddHouseAge  # noqa: F401
+
         cls.models_dir = cls.resolve_models_dir()
         with open(cls.models_dir / "preprocessor.pkl", "rb") as file:
             cls.preprocessor = pickle.load(file)
@@ -72,16 +71,13 @@ class HousePriceServing:
         with open(cls.models_dir / "model.pkl", "rb") as file:
             cls.model = pickle.load(file)
         cls.preprocessor.set_output(transform="pandas")
-        cls.feature_engineer.set_output(transform="pandas")
+        cls.feature_engineer.named_steps["encode"].set_output(transform="pandas")
 
     @classmethod
     def predict(cls, features: HouseFeatures) -> float:
         raw_df = pd.DataFrame([features.model_dump()])
         raw_df[cls.TARGET] = 0.0
         preprocessed = cls.preprocessor.transform(raw_df)
-        preprocessed = cls.add_house_age(
-            preprocessed, reference_year=cls.REFERENCE_YEAR
-        )
         featured = cls.feature_engineer.transform(preprocessed)
         if cls.TARGET in featured.columns:
             featured = featured.drop(columns=[cls.TARGET])
