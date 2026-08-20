@@ -71,10 +71,13 @@ class HousePriceServing:
             cls.feature_engineer = pickle.load(file)
         with open(cls.models_dir / "model.pkl", "rb") as file:
             cls.model = pickle.load(file)
+        cls.preprocessor.set_output(transform="pandas")
+        cls.feature_engineer.set_output(transform="pandas")
 
     @classmethod
     def predict(cls, features: HouseFeatures) -> float:
         raw_df = pd.DataFrame([features.model_dump()])
+        raw_df[cls.TARGET] = 0.0
         preprocessed = cls.preprocessor.transform(raw_df)
         preprocessed = cls.add_house_age(
             preprocessed, reference_year=cls.REFERENCE_YEAR
