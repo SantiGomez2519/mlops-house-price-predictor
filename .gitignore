@@ -28,6 +28,9 @@ htmlcov/
 .env.*
 !.env.example
 
+# Node
+node_modules/
+
 # OS / editor
 .DS_Store
 .idea/
