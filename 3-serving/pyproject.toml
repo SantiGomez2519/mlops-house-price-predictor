@@ -10,8 +10,12 @@ requires-python = ">=3.10"
 dependencies = [
     "fastapi[standard]",
     "pandas",
-    "scikit-learn",
+    "scikit-learn==1.6.1",
+    "house-price-predictor-shared",
 ]
 
 [tool.setuptools]
 packages = []
+
+[tool.uv.sources]
+house-price-predictor-shared = { path = "../shared", editable = true }

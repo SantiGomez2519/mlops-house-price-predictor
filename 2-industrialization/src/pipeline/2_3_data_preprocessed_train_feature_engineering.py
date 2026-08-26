@@ -4,7 +4,6 @@ Fit house_age + scaling/encoding on preprocessed train (experimentation 1.4).
 """
 
 import pickle
-import sys
 from pathlib import Path
 
 import pandas as pd
@@ -13,13 +12,11 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, OrdinalEncoder, StandardScaler
 
-PIPELINE_DIR = Path(__file__).resolve().parent
-if str(PIPELINE_DIR) not in sys.path:
-    sys.path.insert(0, str(PIPELINE_DIR))
-
-from custom_transformers import AddHouseAge  # noqa: E402
+from transformers.custom_transformers import AddHouseAge
 
 set_config(transform_output="pandas")
+
+PIPELINE_DIR = Path(__file__).resolve().parent
 
 
 class DataPreprocessedTrainFeatureEngineering:

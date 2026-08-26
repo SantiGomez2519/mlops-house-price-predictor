@@ -70,7 +70,7 @@ class DataFeaturedTrainTraining:
                 cv=cv,
                 scoring=scoring,
                 refit=cls.BEST_SELECTION_METRIC,
-                n_jobs=-1,
+                n_jobs=1,
             )
             search.fit(X_train, y_train)
             searches[name] = search

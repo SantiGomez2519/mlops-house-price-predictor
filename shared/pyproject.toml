@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "house-price-predictor-shared"
+version = "0.1.0"
+description = "Shared inference logic for house price prediction"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas",
+    "scikit-learn==1.6.1",
+]
+
+[tool.setuptools.packages.find]
+include = ["transformers*", "inference*"]
