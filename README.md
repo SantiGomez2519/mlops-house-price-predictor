@@ -6,11 +6,11 @@ four sequential phases, each in its own directory with independent dependencies.
 ## Architecture
 
 ```
-shared/                         ← Paquete compartido (inference + transformers)
+shared/                         ← Shared package (inference + transformers)
 │
-1-experimentation/              ← Notebooks: prototipado y EDA
+1-experimentation/              ← Notebooks: prototyping and EDA
         ↓ data + pickles
-2-industrialization/            ← Scripts: pipeline de producción
+2-industrialization/            ← Scripts: production pipeline
         ↓ pickles
 3-serving/                      ← FastAPI: HTTP prediction service
         ↓ HTTP API
@@ -41,7 +41,7 @@ data_raw.csv
 [Serving API]              →  POST /predict → { price_pred }
     │
     ▼
-[Frontend]                 →  UI para ingresar features y ver predicción
+[Frontend]                 →  UI to enter features and view prediction
 ```
 
 ## Directory structure
@@ -49,53 +49,53 @@ data_raw.csv
 ```
 mlops-house-price-predictor/
 │
-├── shared/                          ← Paquete compartido
+├── shared/                          ← Shared package
 │   ├── pyproject.toml
 │   ├── transformers/
 │   │   └── custom_transformers.py   ← AddHouseAge (sklearn transformer)
 │   └── inference/
 │       └── predictor.py             ← HousePricePredictor (raw → predict)
 │
-├── 1-experimentation/               ← Fase 1: prototipado
-│   ├── notebooks/                   ← 6 Jupyter notebooks secuenciales
-│   ├── data/                        ← CSVs de entrada y salida
-│   └── models/                      ← Pickles generados
+├── 1-experimentation/               ← Phase 1: prototyping
+│   ├── notebooks/                   ← 6 sequential Jupyter notebooks
+│   ├── data/                        ← Input and output CSVs
+│   └── models/                      ← Generated pickles
 │
-├── 2-industrialization/             ← Fase 2: pipeline de producción
+├── 2-industrialization/             ← Phase 2: production pipeline
 │   └── src/
-│       ├── pipeline/                ← 5 scripts CLI secuenciales
-│       ├── data/                    ← CSVs (input/output del pipeline)
+│       ├── pipeline/                ← 5 sequential CLI scripts
+│       ├── data/                    ← CSVs (pipeline input/output)
 │       └── models/                  ← Pickles (preprocessor, feature_engineer, model)
 │
-├── 3-serving/                       ← Fase 3: API de predicción
+├── 3-serving/                       ← Phase 3: prediction API
 │   └── src/
 │       ├── app.py                   ← Application class (entry point)
-│       ├── config.py                ← Settings (resolución de paths)
+│       ├── config.py                ← Settings (path resolution)
 │       ├── schemas.py               ← Pydantic models (request/response)
 │       ├── deps.py                  ← PredictorService (dependency injection)
 │       ├── routers/
 │       │   └── prediction.py        ← /health, /predict
 │       └── models/
 │
-└── 4-application/                   ← Fase 4: frontend
-    ├── src/App.vue                  ← SPA (form + predicción)
-    └── vite.config.js              ← Proxy a la API en :8000
+└── 4-application/                   ← Phase 4: frontend
+    ├── src/App.vue                  ← SPA (form + prediction)
+    └── vite.config.js              ← Proxy to API on :8000
 ```
 
 ## Tech stack
 
-| Capa | Tecnología |
+| Layer | Technology |
 |---|---|
-| Datos | pandas |
+| Data | pandas |
 | ML | scikit-learn 1.6.1 |
-| Experimentación | Jupyter, matplotlib, seaborn |
-| Empaquetado | uv (lockfiles) + setuptools |
+| Experimentation | Jupyter, matplotlib, seaborn |
+| Packaging | uv (lockfiles) + setuptools |
 | API | FastAPI + Pydantic |
 | Frontend | Vue 3 + Vite 6 |
 
 ## Quick start
 
-### 1. Experimentación (notebooks)
+### 1. Experimentation (notebooks)
 
 ```bash
 cd 1-experimentation
@@ -103,7 +103,7 @@ uv sync
 uv run jupyter notebook notebooks
 ```
 
-### 2. Industrialización (pipeline)
+### 2. Industrialization (pipeline)
 
 ```bash
 cd 2-industrialization
@@ -123,7 +123,7 @@ uv sync
 uv run fastapi dev src/app.py
 ```
 
-API disponible en `http://127.0.0.1:8000`. Documentación interactiva en `/docs`.
+API available at `http://127.0.0.1:8000`. Interactive docs at `/docs`.
 
 ### 4. Frontend
 
@@ -133,16 +133,16 @@ npm install
 npm run dev
 ```
 
-UI disponible en `http://127.0.0.1:5173`. Vite proxea `/predict` y `/health` a `:8000`.
+UI available at `http://127.0.0.1:5173`. Vite proxies `/predict` and `/health` to `:8000`.
 
 ## API endpoints
 
-| Método | Ruta | Descripción |
+| Method | Path | Description |
 |---|---|---|
-| `GET` | `/health` | Estado del modelo cargado |
-| `POST` | `/predict` | Predecir precio de una casa |
+| `GET` | `/health` | Loaded model status |
+| `POST` | `/predict` | Predict house price |
 
-Ejemplo:
+Example:
 
 ```bash
 curl -X POST http://127.0.0.1:8000/predict \
@@ -152,8 +152,8 @@ curl -X POST http://127.0.0.1:8000/predict \
 
 ## Model config
 
-Por defecto el serving carga los pickles de `2-industrialization/src/models/`.
-Se puede sobreescricir con la variable de entorno `MODELS_DIR`:
+By default the serving loads pickles from `2-industrialization/src/models/`.
+Override with the `MODELS_DIR` environment variable:
 
 ```bash
 MODELS_DIR=/path/to/models uv run fastapi dev src/app.py
@@ -161,13 +161,13 @@ MODELS_DIR=/path/to/models uv run fastapi dev src/app.py
 
 ## Shared package
 
-`shared/` es un paquete Python instalable que contiene la lógica de inferencia
-compartida entre industrialización y serving:
+`shared/` is an installable Python package containing the inference logic
+shared between industrialization and serving:
 
-- `transformers/custom_transformers.py` — `AddHouseAge`: transformer custom de
-  scikit-learn que calcula `house_age` a partir de `year_built`.
-- `inference/predictor.py` — `HousePricePredictor`: encapsula la cadena completa
+- `transformers/custom_transformers.py` — `AddHouseAge`: custom scikit-learn
+  transformer that computes `house_age` from `year_built`.
+- `inference/predictor.py` — `HousePricePredictor`: encapsulates the full chain
   `raw features → preprocessor → feature_engineer → model → prediction`.
 
-Ambos consumeres (`2-industrialization` y `3-serving`) lo importan como
-dependencia editable via `[tool.uv.sources]` en su `pyproject.toml`.
+Both consumers (`2-industrialization` and `3-serving`) import it as an editable
+dependency via `[tool.uv.sources]` in their `pyproject.toml`.
