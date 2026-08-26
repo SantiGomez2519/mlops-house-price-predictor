@@ -9,7 +9,7 @@ Train artifacts first (`2-industrialization`), then from this folder (`3-serving
 
 ```bash
 uv sync
-uv run fastapi dev src/main.py
+uv run fastapi dev src/app.py
 ```
 
 The API starts at `http://127.0.0.1:8000`. Docs: `http://127.0.0.1:8000/docs`.
@@ -17,7 +17,7 @@ The API starts at `http://127.0.0.1:8000`. Docs: `http://127.0.0.1:8000/docs`.
 By default it reads pickles from `2-industrialization/src/models/`. Override with:
 
 ```bash
-MODELS_DIR=/path/to/models uv run fastapi dev src/main.py
+MODELS_DIR=/path/to/models uv run fastapi dev src/app.py
 ```
 
 ## Endpoints
