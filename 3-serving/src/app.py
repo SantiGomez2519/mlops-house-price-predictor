@@ -1,11 +1,10 @@
-"""House price prediction API — entry point."""
-
 from contextlib import asynccontextmanager
 
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+import views
 from config import HousePriceSettings
 from inference.predictor import HousePricePredictor
 from urls import HousePriceRouter
@@ -19,15 +18,14 @@ class HousePriceApplication:
             version=self._settings.api_version,
             lifespan=self._lifespan,
         )
-        self._app.state.settings = self._settings
         self._configure_cors()
         self._register_routes()
 
     @staticmethod
     @asynccontextmanager
     async def _lifespan(_app: FastAPI):
-        settings: HousePriceSettings = _app.state.settings
-        _app.state.predictor = HousePricePredictor(settings.models_dir)
+        settings = HousePriceSettings.from_env()
+        views.predictor = HousePricePredictor(settings.models_dir)
         yield
 
     def _configure_cors(self) -> None:

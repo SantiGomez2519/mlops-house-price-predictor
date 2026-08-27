@@ -1,5 +1,3 @@
-"""URL routing — maps endpoints to views."""
-
 from fastapi import APIRouter
 
 from views import HousePricePredictionView
