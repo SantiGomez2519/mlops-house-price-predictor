@@ -3,7 +3,7 @@
 from pydantic import BaseModel, Field
 
 
-class HouseFeatures(BaseModel):
+class HousePriceFeatures(BaseModel):
     sqft: float = Field(examples=[1527])
     bedrooms: float = Field(examples=[2])
     bathrooms: float = Field(examples=[1.5])
@@ -12,11 +12,11 @@ class HouseFeatures(BaseModel):
     condition: str = Field(examples=["Good"])
 
 
-class PricePrediction(BaseModel):
+class HousePricePrediction(BaseModel):
     price_pred: float
 
 
-class HealthResponse(BaseModel):
+class HousePriceHealthResponse(BaseModel):
     status: str
     model: str
     models_dir: str

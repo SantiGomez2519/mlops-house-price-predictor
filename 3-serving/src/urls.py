@@ -2,8 +2,22 @@
 
 from fastapi import APIRouter
 
-from views import PredictionView
+from views import HousePricePredictionView
 
-router = APIRouter()
-router.add_api_route("/health", PredictionView.health, methods=["GET"])
-router.add_api_route("/predict", PredictionView.predict, methods=["POST"])
+
+class HousePriceRouter:
+    router = APIRouter()
+
+    @classmethod
+    def register(cls) -> APIRouter:
+        cls.router.add_api_route(
+            "/health",
+            HousePricePredictionView.health,
+            methods=["GET"],
+        )
+        cls.router.add_api_route(
+            "/predict",
+            HousePricePredictionView.predict,
+            methods=["POST"],
+        )
+        return cls.router

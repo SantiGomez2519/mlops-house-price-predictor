@@ -6,47 +6,47 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from config import Settings
+from config import HousePriceSettings
 from inference.predictor import HousePricePredictor
-
-predictor: HousePricePredictor | None = None
-
-
-def get_predictor() -> HousePricePredictor:
-    if predictor is None:
-        raise RuntimeError("Model not loaded")
-    return predictor
+from urls import HousePriceRouter
 
 
-@asynccontextmanager
-async def lifespan(_app: FastAPI):
-    global predictor
-    settings = Settings.from_env()
-    predictor = HousePricePredictor(settings.models_dir)
-    yield
+class HousePriceApplication:
+    def __init__(self):
+        self._settings = HousePriceSettings.from_env()
+        self._app = FastAPI(
+            title=self._settings.api_title,
+            version=self._settings.api_version,
+            lifespan=self._lifespan,
+        )
+        self._app.state.settings = self._settings
+        self._configure_cors()
+        self._register_routes()
+
+    @staticmethod
+    @asynccontextmanager
+    async def _lifespan(_app: FastAPI):
+        settings: HousePriceSettings = _app.state.settings
+        _app.state.predictor = HousePricePredictor(settings.models_dir)
+        yield
+
+    def _configure_cors(self) -> None:
+        self._app.add_middleware(
+            CORSMiddleware,
+            allow_origins=self._settings.cors_origins,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
+    def _register_routes(self) -> None:
+        self._app.include_router(HousePriceRouter.register())
+
+    @property
+    def app(self) -> FastAPI:
+        return self._app
 
 
-def create_app() -> FastAPI:
-    settings = Settings.from_env()
-    app = FastAPI(
-        title=settings.api_title,
-        version=settings.api_version,
-        lifespan=lifespan,
-    )
-    app.dependency_overrides[HousePricePredictor] = get_predictor
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=settings.cors_origins,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
-    from urls import router
-    app.include_router(router)
-    return app
-
-
-app = create_app()
+app = HousePriceApplication().app
 
 if __name__ == "__main__":
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

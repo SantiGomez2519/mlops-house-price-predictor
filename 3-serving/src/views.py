@@ -1,24 +1,30 @@
-from typing import Annotated
+"""Prediction views — class-based, DRF style."""
 
-from fastapi import Depends
+from fastapi import Request
 
-from inference.predictor import HousePricePredictor
-from schemas import HealthResponse, HouseFeatures, PricePrediction
+from schemas import (
+    HousePriceFeatures,
+    HousePriceHealthResponse,
+    HousePricePrediction,
+)
 
-PredictorDep = Annotated[HousePricePredictor, Depends()]
 
-
-class PredictionView:
+class HousePricePredictionView:
     @staticmethod
-    def health(predictor: PredictorDep) -> HealthResponse:
-        return HealthResponse(
+    def health(request: Request) -> HousePriceHealthResponse:
+        predictor = request.app.state.predictor
+        return HousePriceHealthResponse(
             status="ok",
             model=type(predictor.model).__name__,
             models_dir=str(predictor.models_dir),
         )
 
     @staticmethod
-    def predict(features: HouseFeatures, predictor: PredictorDep) -> PricePrediction:
-        return PricePrediction(
+    def predict(
+        features: HousePriceFeatures,
+        request: Request,
+    ) -> HousePricePrediction:
+        predictor = request.app.state.predictor
+        return HousePricePrediction(
             price_pred=predictor.predict_single(features.model_dump()),
         )

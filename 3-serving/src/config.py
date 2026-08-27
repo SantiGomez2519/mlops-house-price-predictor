@@ -12,14 +12,14 @@ DEFAULT_CORS_ORIGINS = [
 
 
 @dataclass(frozen=True)
-class Settings:
+class HousePriceSettings:
     models_dir: Path
     cors_origins: list[str] = field(default_factory=lambda: list(DEFAULT_CORS_ORIGINS))
     api_title: str = "House price predictor"
     api_version: str = "0.1.0"
 
     @classmethod
-    def from_env(cls) -> "Settings":
+    def from_env(cls) -> "HousePriceSettings":
         src_dir = Path(__file__).resolve().parent
         repo_dir = src_dir.parent.parent
         local_models = src_dir / "models"
