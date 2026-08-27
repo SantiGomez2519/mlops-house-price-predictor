@@ -5,14 +5,6 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 
-class _Paths:
-    SRC_DIR = Path(__file__).resolve().parent
-    SERVING_DIR = SRC_DIR.parent
-    REPO_DIR = SERVING_DIR.parent
-    LOCAL_MODELS_DIR = SRC_DIR / "models"
-    INDUSTRIAL_MODELS_DIR = REPO_DIR / "2-industrialization" / "src" / "models"
-
-
 DEFAULT_CORS_ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5173",
@@ -28,11 +20,16 @@ class Settings:
 
     @classmethod
     def from_env(cls) -> "Settings":
+        src_dir = Path(__file__).resolve().parent
+        repo_dir = src_dir.parent.parent
+        local_models = src_dir / "models"
+        industrial_models = repo_dir / "2-industrialization" / "src" / "models"
+
         env_dir = os.environ.get("MODELS_DIR")
         if env_dir:
             models_dir = Path(env_dir)
-        elif (_Paths.LOCAL_MODELS_DIR / "model.pkl").exists():
-            models_dir = _Paths.LOCAL_MODELS_DIR
+        elif (local_models / "model.pkl").exists():
+            models_dir = local_models
         else:
-            models_dir = _Paths.INDUSTRIAL_MODELS_DIR
+            models_dir = industrial_models
         return cls(models_dir=models_dir)
