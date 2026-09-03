@@ -22,7 +22,8 @@ class DataRawTrainPreprocessing:
 
     SRC_DIR = Path(__file__).resolve().parent.parent
     DATA_DIR = SRC_DIR / "data"
-    MODELS_DIR = SRC_DIR / "models"
+    SHARED_DIR = Path(__file__).resolve().parent.parent.parent.parent / "shared"
+    MODELS_DIR = SHARED_DIR / "models"
 
     TRAIN_PATH = DATA_DIR / "data_raw_train.csv"
     PREPROCESSED_TRAIN_PATH = DATA_DIR / "data_preprocessed_train.csv"

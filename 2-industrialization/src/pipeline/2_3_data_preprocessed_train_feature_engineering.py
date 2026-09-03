@@ -29,7 +29,8 @@ class DataPreprocessedTrainFeatureEngineering:
 
     SRC_DIR = PIPELINE_DIR.parent
     DATA_DIR = SRC_DIR / "data"
-    MODELS_DIR = SRC_DIR / "models"
+    SHARED_DIR = Path(__file__).resolve().parent.parent.parent.parent / "shared"
+    MODELS_DIR = SHARED_DIR / "models"
 
     PREPROCESSED_TRAIN_PATH = DATA_DIR / "data_preprocessed_train.csv"
     FEATURED_TRAIN_PATH = DATA_DIR / "data_featured_train.csv"

@@ -8,8 +8,9 @@ four sequential phases, each in its own directory with independent dependencies.
 ```
 shared/                         ← Shared package (inference + transformers)
 │
+shared/                         ← Shared package (inference + transformers + pickles)
 1-experimentation/              ← Notebooks: prototyping and EDA
-        ↓ data + pickles
+        ↓ data
 2-industrialization/            ← Scripts: production pipeline
         ↓ pickles
 3-serving/                      ← FastAPI: HTTP prediction service
@@ -49,33 +50,26 @@ data_raw.csv
 ```
 mlops-house-price-predictor/
 │
-├── shared/                          ← Shared package
+├── shared/                          ← Shared package (inference + transformers + pickles)
 │   ├── pyproject.toml
 │   ├── transformers/
 │   │   └── custom_transformers.py   ← AddHouseAge (sklearn transformer)
-│   └── inference/
-│       └── predictor.py             ← HousePricePredictor (raw → predict)
+│   ├── inference/
+│   │   └── predictor.py             ← HousePricePredictor (raw → predict)
+│   └── models/                      ← Pickles (preprocessor, feature_engineer, model)
 │
 ├── 1-experimentation/               ← Phase 1: prototyping
 │   ├── notebooks/                   ← 6 sequential Jupyter notebooks
-│   ├── data/                        ← Input and output CSVs
-│   └── models/                      ← Generated pickles
+│   └── data/                        ← Input and output CSVs
 │
 ├── 2-industrialization/             ← Phase 2: production pipeline
 │   └── src/
 │       ├── pipeline/                ← 5 sequential CLI scripts
-│       ├── data/                    ← CSVs (pipeline input/output)
-│       └── models/                  ← Pickles (preprocessor, feature_engineer, model)
+│       └── data/                    ← CSVs (pipeline input/output)
 │
 ├── 3-serving/                       ← Phase 3: prediction API
 │   └── src/
-│       ├── app.py                   ← Application class (entry point)
-│       ├── config.py                ← Settings (path resolution)
-│       ├── schemas.py               ← Pydantic models (request/response)
-│       ├── deps.py                  ← PredictorService (dependency injection)
-│       ├── routers/
-│       │   └── prediction.py        ← /health, /predict
-│       └── models/
+│       └── app.py                   ← Single-file FastAPI app (/health, /predict)
 │
 └── 4-application/                   ← Phase 4: frontend
     ├── src/App.vue                  ← SPA (form + prediction)
@@ -152,7 +146,7 @@ curl -X POST http://127.0.0.1:8000/predict \
 
 ## Model config
 
-By default the serving loads pickles from `2-industrialization/src/models/`.
+By default the serving loads pickles from `shared/models/`.
 Override with the `MODELS_DIR` environment variable:
 
 ```bash
@@ -168,6 +162,10 @@ shared between industrialization and serving:
   transformer that computes `house_age` from `year_built`.
 - `inference/predictor.py` — `HousePricePredictor`: encapsulates the full chain
   `raw features → preprocessor → feature_engineer → model → prediction`.
+- `models/` — the pickles (`preprocessor.pkl`, `feature_engineer.pkl`,
+  `model.pkl`, `model_config.json`) written by the industrialization pipeline and
+  read by both evaluation and serving, so serving does not depend on
+  `2-industrialization/`.
 
 Both consumers (`2-industrialization` and `3-serving`) import it as an editable
 dependency via `[tool.uv.sources]` in their `pyproject.toml`.

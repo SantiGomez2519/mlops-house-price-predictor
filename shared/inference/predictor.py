@@ -8,7 +8,7 @@ import pandas as pd
 from sklearn import set_config
 
 from transformers import custom_transformers
-from transformers.custom_transformers import AddHouseAge  # noqa: F401
+from transformers.custom_transformers import AddHouseAge
 
 sys.modules["custom_transformers"] = custom_transformers
 

@@ -17,7 +17,8 @@ TARGET = "price"
 class DataRawTestEvaluation:
     SRC_DIR = Path(__file__).resolve().parent.parent
     DATA_DIR = SRC_DIR / "data"
-    MODELS_DIR = SRC_DIR / "models"
+    SHARED_DIR = Path(__file__).resolve().parent.parent.parent.parent / "shared"
+    MODELS_DIR = SHARED_DIR / "models"
 
     TEST_PATH = DATA_DIR / "data_raw_test.csv"
     PREDICTIONS_PATH = DATA_DIR / "data_featured_test_predictions.csv"
